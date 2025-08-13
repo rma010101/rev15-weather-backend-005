@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
-const fetch = require('node-fetch'); // Using CommonJS syntax for node-fetch
+const fetch = require('node-fetch').default; 
 
 const app = express();
 const PORT = process.env.PORT || 8080; // OpenShift will set PORT for internal service exposure
