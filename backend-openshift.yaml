@@ -1,7 +1,17 @@
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: weather-backend
+  namespace: smdewi-dev
+  labels:
+    app: weather-backend
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: weather-backend
+  namespace: smdewi-dev
   labels:
     app: weather-backend
 spec:
@@ -18,88 +28,47 @@ spec:
         - name: weather-backend
           image: image-registry.openshift-image-registry.svc:5000/smdewi-dev/weather-backend:latest
           ports:
-            - containerPort: 8080
-              name: http-web-port 
+            - name: http
+              containerPort: 8080
+              protocol: TCP
           env:
+            - name: NODE_ENV
+              value: production
             - name: OPENWEATHER_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: openweathermap-api-key
                   key: OPENWEATHER_API_KEY
-            - name: PORT
-              value: "8080"
-          resources:
-            limits:
-              memory: "256Mi"
-              cpu: "250m"
-            requests:
-              memory: "128Mi"
-              cpu: "100m"
+          imagePullPolicy: Always
+      restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: weather-backend-service
+  name: weather-backend
+  namespace: smdewi-dev
   labels:
     app: weather-backend
 spec:
   selector:
     app: weather-backend
   ports:
-    - protocol: TCP
+    - name: http
       port: 8080
-      targetPort: http-web-port 
+      targetPort: 8080
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: weather-backend-route
+  namespace: smdewi-dev
   labels:
     app: weather-backend
 spec:
   to:
     kind: Service
-    name: weather-backend-service
+    name: weather-backend
   port:
-    targetPort: http-web-port 
+    targetPort: http
   tls:
     termination: edge
----
-apiVersion: image.openshift.io/v1 
-kind: ImageStream
-metadata:
-  name: weather-backend 
-  labels:
-    app: weather-backend
----
-apiVersion: build.openshift.io/v1
-kind: BuildConfig
-metadata:
-  name: weather-backend
-  labels:
-    app: weather-backend
-spec:
-  output:
-    to:
-      kind: ImageStreamTag
-      name: 'weather-backend:latest'
-  source:
-    type: Git
-    git:
-      uri: https://github.com/dewi-xaltius/weather-backend # Replace with the URL of your weather-backend Git repo
-      ref: main # Or the branch name you pushed to (e.g., 'master')
-  strategy:
-    type: Docker # Use the Dockerfile in your repo
-    dockerStrategy:
-      # No buildArgs needed here for the API key, as it's injected at runtime into the container
-      # This is different from a client-side React app that needs it at build time.
-      # However, if your Dockerfile needed any build-time specific non-sensitive envs, they'd go here.
-      # example: buildArgs:
-      #            - name: NODE_ENV
-      #              value: "production"
-  triggers:
-    - type: ConfigChange # Trigger a new build when this BuildConfig changes
-    - type: ImageChange  # Trigger a new build when the base image changes (not applicable here)
-    - type: GitHub # Optional: Configure GitHub webhook to auto-trigger on push
-      github:
-        secret: "cWtffb35wt" # Generate a random string for this
