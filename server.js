@@ -90,7 +90,7 @@ app.get('/health', (req, res) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Backend server listening on port ${PORT}`);
     // --- Debugging Check 6: Confirm Server Start ---
     console.log(`Access backend via: http://localhost:${PORT}/api/weather?city=London (for local testing)`);
