@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-backend
+  labels:
+    app: weather-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weather-backend
+  template:
+    metadata:
+      labels:
+        app: weather-backend
+    spec:
+      containers:
+        - name: weather-backend
+          image: image-registry.openshift-image-registry.svc:5000/smdewi-dev/weather-backend:latest
+          ports:
+            - containerPort: 8080
+              name: http-web-port # <-- NEW: Named port for the container
+          env:
+            - name: OPENWEATHER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openweathermap-api-key
+                  key: OPENWEATHER_API_KEY
+            - name: PORT
+              value: "8080"
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: weather-backend-service
+  labels:
+    app: weather-backend
+spec:
+  selector:
+    app: weather-backend
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: http-web-port # <-- CHANGED: Reference the named port
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: weather-backend-route
+  labels:
+    app: weather-backend
+spec:
+  to:
+    kind: Service
+    name: weather-backend-service
+  port:
+    targetPort: http-web-port # <-- CHANGED: Reference the named port
+  tls:
+    termination: edge
+    # insecureEdgeTerminationPolicy: Redirect

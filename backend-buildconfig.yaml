@@ -1,0 +1,31 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: weather-backend
+  labels:
+    app: weather-backend
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: 'weather-backend:latest'
+  source:
+    type: Git
+    git:
+      uri: https://github.com/dewi-xaltius/weather-backend # Replace with the URL of your weather-backend Git repo
+      ref: main # Or the branch name you pushed to (e.g., 'master')
+  strategy:
+    type: Docker # Use the Dockerfile in your repo
+    dockerStrategy:
+      # No buildArgs needed here for the API key, as it's injected at runtime into the container
+      # This is different from a client-side React app that needs it at build time.
+      # However, if your Dockerfile needed any build-time specific non-sensitive envs, they'd go here.
+      # example: buildArgs:
+      #            - name: NODE_ENV
+      #              value: "production"
+  triggers:
+    - type: ConfigChange # Trigger a new build when this BuildConfig changes
+    - type: ImageChange  # Trigger a new build when the base image changes (not applicable here)
+    - type: GitHub # Optional: Configure GitHub webhook to auto-trigger on push
+      github:
+        secret: "cWtffb35wt" # Generate a random string for this
