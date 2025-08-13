@@ -19,7 +19,7 @@ spec:
           image: image-registry.openshift-image-registry.svc:5000/smdewi-dev/weather-backend:latest
           ports:
             - containerPort: 8080
-              name: http-web-port # <-- NEW: Named port for the container
+              name: http-web-port 
           env:
             - name: OPENWEATHER_API_KEY
               valueFrom:
@@ -48,7 +48,7 @@ spec:
   ports:
     - protocol: TCP
       port: 8080
-      targetPort: http-web-port # <-- CHANGED: Reference the named port
+      targetPort: http-web-port 
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -61,7 +61,13 @@ spec:
     kind: Service
     name: weather-backend-service
   port:
-    targetPort: http-web-port # <-- CHANGED: Reference the named port
+    targetPort: http-web-port 
   tls:
     termination: edge
-    # insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: image.openshift.io/v1 
+kind: ImageStream
+metadata:
+  name: weather-backend 
+  labels:
+    app: weather-backend
