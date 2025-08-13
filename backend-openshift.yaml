@@ -7,6 +7,36 @@ metadata:
   labels:
     app: weather-backend
 ---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: weather-backend
+  namespace: smdewi-dev
+  labels:
+    app: weather-backend
+spec:
+  source:
+    type: Git
+    git:
+      uri: "https://github.com/dewi-xaltius/weather-backend.git"
+      ref: main
+  strategy:
+    type: Docker
+    dockerStrategy: {}
+  output:
+    to:
+      kind: ImageStreamTag
+      name: "weather-backend:latest"
+  triggers:
+    - type: GitHub
+      github:
+        secret: "secret101"
+    - type: Generic
+      generic:
+        secret: "secret101"
+    - type: ConfigChange
+    - type: ImageChange
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
