@@ -2,18 +2,18 @@
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  name: weather-backend
+  name: weather-backend-05
   namespace: rma010101-dev
   labels:
-    app: weather-backend
+    app: weather-backend-05
 ---
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
-  name: weather-backend
+  name: weather-backend-05
   namespace: rma010101-dev
   labels:
-    app: weather-backend
+    app: weather-backend-05
 spec:
   source:
     type: Git
@@ -26,7 +26,7 @@ spec:
   output:
     to:
       kind: ImageStreamTag
-      name: "weather-backend:latest"
+      name: "weather-backend-05:latest"
   triggers:
     - type: GitHub
       github:
@@ -40,23 +40,23 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: weather-backend
+  name: weather-backend-05
   namespace: rma010101-dev
   labels:
-    app: weather-backend
+    app: weather-backend-05
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: weather-backend
+      app: weather-backend-05
   template:
     metadata:
       labels:
-        app: weather-backend
+        app: weather-backend-05
     spec:
       containers:
-        - name: weather-backend
-          image: image-registry.openshift-image-registry.svc:5000/rma010101-dev/weather-backend:latest
+        - name: weather-backend-05
+          image: image-registry.openshift-image-registry.svc:5000/rma010101-dev/weather-backend-05:latest
           ports:
             - name: http
               containerPort: 8080
@@ -67,21 +67,21 @@ spec:
             - name: OPENWEATHER_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: openweathermap-api-key
-                  key: OPENWEATHER_API_KEY-5
+                  name: openweathermap-api-key-5
+                  key: OPENWEATHER_API_KEY
           imagePullPolicy: Always
       restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: weather-backend
+  name: weather-backend-05
   namespace: rma010101-dev
   labels:
-    app: weather-backend
+    app: weather-backend-05
 spec:
   selector:
-    app: weather-backend
+    app: weather-backend-05
   ports:
     - name: http
       port: 8080
@@ -90,14 +90,14 @@ spec:
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: weather-backend-route
+  name: weather-backend-05-route
   namespace: rma010101-dev
   labels:
-    app: weather-backend
+    app: weather-backend-05
 spec:
   to:
     kind: Service
-    name: weather-backend
+    name: weather-backend-05
   port:
     targetPort: http
   tls:
