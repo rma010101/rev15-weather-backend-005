@@ -68,7 +68,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: openweathermap-api-key
-                  key: OPENWEATHER_API_KEY
+                  key: OPENWEATHER_API_KEY-5
           imagePullPolicy: Always
       restartPolicy: Always
 ---
